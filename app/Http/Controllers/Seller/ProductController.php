@@ -46,7 +46,9 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        $product = Auth::user()->products()->create($request->validated());
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $product = $user->products()->create($request->validated());
         $product->tags()->sync($request->input('tags', []));
 
         return redirect()->route('seller.products.index')->with('success', 'Producto creado con éxito.');
@@ -84,10 +86,14 @@ class ProductController extends Controller
     /**
      * Elimina un producto de la base de datos.
      */
-    public function destroy(Product $product)
+    public function destroy(Request $request, Product $product)
     {
+        if($request->user()->cannot('delete products')){
+            abort(403, 'No tienes permisos para esta accion');
+        }
+
         if ($product->seller_id !== Auth::id()) {
-            abort(403);
+            abort(403, 'Accion no autorizada');
         }
 
         $product->delete();

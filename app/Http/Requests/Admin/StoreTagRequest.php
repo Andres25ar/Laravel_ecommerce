@@ -11,7 +11,8 @@ class StoreTagRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user() && $this->user()->isAdmin();
+        //ver el archivo /database/seeders/RolesAndPermissionsSeeder.php
+        return $this->user()->can('manage tags'); //verdadero si le usuario puede gestionar las tags(etiquetas de filtrado)
     }
 
     /**

@@ -51,9 +51,13 @@ class TagController extends Controller
         return redirect()->route('admin.tags.index')->with('success', 'Etiqueta actualizada.');
     }
 
-    public function destroy(Tag $tag)
+    public function destroy(Request $request, Tag $tag)
     {
+        if($request->user()->cannot('manage tags')){
+            abort(403, 'No tienes permisos para esta accion');
+        }
+
         $tag->delete();
-        return redirect()->route('admin.tags.index')->with('success', 'Etiqueta eliminada.');
+        return redirect()->route('admin.tags.index')->with('success', 'Tag eliminada con éxito.');
     }
 }

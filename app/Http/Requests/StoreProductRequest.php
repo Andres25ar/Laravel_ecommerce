@@ -11,9 +11,8 @@ class StoreProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Por ahora, cualquiera puede crear. Luego aquí puedes poner lógica
-        // para asegurar que solo los vendedores puedan crear productos.
-        return true;
+        //permisos asignados a los vendedores en el archivo /database/seeders/RolesAndPermissionsSeeders.php
+        return $this->user()->can('create products');   //retorna true si el usuario tiene los permisos para crear productos
     }
 
     /**

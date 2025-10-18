@@ -10,6 +10,7 @@ class CategoryController extends Controller
 {
     /**
      * Muestra todas las categorías.
+     * Controlador para las rutas y vistas publicas.
      */
     public function index()
     {

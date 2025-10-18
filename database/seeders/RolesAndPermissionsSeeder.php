@@ -24,11 +24,13 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::create(['name' => 'add to cart']);
         Permission::create(['name' => 'view own orders']);
 
-        // Permisos de Administrador
+        // Permisos del Administrador
         Permission::create(['name' => 'manage users']);
         Permission::create(['name' => 'view dashboard']);
         Permission::create(['name' => 'manage categories']);
         Permission::create(['name' => 'manage tags']);
+        /*ya existe y se le asigna despues
+        Permission::create(['name' => 'delete products']);*/
 
         // --- CREAR ROLES Y ASIGNAR PERMISOS ---
 

@@ -51,9 +51,13 @@ class CategoryController extends Controller
         return redirect()->route('admin.categories.index')->with('success', 'Categoría actualizada.');
     }
 
-    public function destroy(Category $category)
+    public function destroy(Request $request,Category $category)
     {
+        if($request->user()->cannot('manage categories')){
+            abort(403, 'No tienes permisos para esta accion');
+        }
+
         $category->delete();
-        return redirect()->route('admin.categories.index')->with('success', 'Categoría eliminada.');
+        return redirect()->route('admin.categories.index')->with('success', 'Categoria eliminada con éxito.');
     }
 }

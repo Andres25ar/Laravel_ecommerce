@@ -11,9 +11,10 @@ class UpdateProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Aquí deberías verificar si el usuario autenticado es el dueño del producto
-        // return $this->user()->id === $this->product->seller_id;
-        return true; // Por ahora lo dejamos abierto
+        //permisos asignados a los vendedores en el archivo /database/seeders/RolesAndPermissionsSeeders.php
+        //retorna true si el usuario tiene los permisos para crear productos
+        //ademas se asegura que solo el vendedor de ese producto pueda editarlos
+        return $this->user()->can('edit products') && $this->user()->id === $this->product->seller_id;
     }
 
     /**

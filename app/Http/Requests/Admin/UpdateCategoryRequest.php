@@ -11,7 +11,8 @@ class UpdateCategoryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user() && $this->user()->isAdmin();
+        //ver el archivo /database/seeders/RolesAndPermissionsSeeder.php
+        return $this->user()->can('manage categories'); //verdadero si le usuario puede gestionar las categorias
     }
 
     /**

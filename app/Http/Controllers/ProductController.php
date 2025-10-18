@@ -15,7 +15,7 @@ class ProductController extends Controller
     public function index()
     {
         // Obtenemos los productos con sus categorías y vendedores para optimizar.
-        // Paginamos para no mostrar los 60 productos de golpe.
+        // Paginamos para no mostrar todos los productos de golpe.
         $products = Product::with(['category', 'seller'])->paginate(12);
 
         // Renderiza el componente React 'Products/Index' y le pasa los productos.
