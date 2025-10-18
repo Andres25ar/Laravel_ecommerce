@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         //llamar a los metodos run de los demas seeders
         $this->call([
+            RolesAndPermissionsSeeder::class,
             //primero los seeder sin dependencias o realiciones con los demas
             CategorySeeder::class,
             TagSeeder::class,

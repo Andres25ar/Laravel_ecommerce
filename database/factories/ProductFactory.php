@@ -25,7 +25,9 @@ class ProductFactory extends Factory
             'price' => fake()->randomFloat(2, 10, 2000),    //real de 2 decimales entre 10 y 2000
             'stock' => fake()->numberBetween(0, 100),
             //asigna un vendedor de manera aleatoria (id del rol vendedor es 2)
-            'seller_id' => User::where('role_id', 2)->inRandomOrder()->first()->id,
+            'seller_id' => User::whereHas('roles', function ($query){
+                $query->where('name', 'vendedor');  //consulta sobre el rol del usario y pregunta si es un vendedor
+            })->inRandomOrder()->first()->id,
             //asigna una categoria aleatoria
             'category_id' => Category::inRandomOrder()->first()->id,
         ];

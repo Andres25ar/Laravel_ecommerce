@@ -7,14 +7,6 @@ use App\Http\Controllers\Seller\ProductController as SellerProductController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Aquí es donde puedes registrar las rutas web para tu aplicación.
-|
-*/
 
 // --- RUTAS PÚBLICAS (Cualquiera puede verlas) ---
 Route::get('/', [ProductController::class, 'index'])->name('home');
@@ -29,6 +21,7 @@ Route::middleware([
 
     Route::get('/dashboard', function () {
         // Redirigir al panel correspondiente según el rol del usuario
+        //si no funciona probar Auth::user()->isAdmin())
         if (auth()->user()->isAdmin()) {
             // Un admin podría tener su propio dashboard en el futuro
             // Por ahora, lo mandamos a categorías
