@@ -14,14 +14,14 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Admin/Categories/Index', [
+        return Inertia::render('admin/categories/index', [
             'categories' => Category::paginate(10)
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('Admin/Categories/Create');
+        return Inertia::render('admin/categories/create');
     }
 
     public function store(StoreCategoryRequest $request)
@@ -36,7 +36,7 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
-        return Inertia::render('Admin/Categories/Edit', [
+        return Inertia::render('admin/categories/edit', [
             'category' => $category
         ]);
     }
@@ -53,7 +53,8 @@ class CategoryController extends Controller
 
     public function destroy(Request $request,Category $category)
     {
-        if($request->user()->cannot('manage categories')){
+        if(!$request->user()->hasRole('administrador')){
+        //if($request->user()->cannot('manage categories')){
             abort(403, 'No tienes permisos para esta accion');
         }
 

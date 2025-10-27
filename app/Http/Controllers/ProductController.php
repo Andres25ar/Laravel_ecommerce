@@ -9,19 +9,29 @@ use Inertia\Inertia;
 class ProductController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     * Basado en la página 12 del PDF.
+     * Muestra una lista pública de todos los productos.
      */
     public function index()
     {
-        // Obtenemos los productos con sus categorías y vendedores para optimizar.
-        // Paginamos para no mostrar todos los productos de golpe.
         $products = Product::with(['category', 'seller'])->paginate(12);
 
-        // Renderiza el componente React 'Products/Index' y le pasa los productos.
-        return Inertia::render('Products/Index', [
+        return Inertia::render('products/index', [
             'products' => $products
         ]);
     }
-}
 
+    /**
+     * Muestra el detalle de un producto específico.
+     * Esta ruta está protegida por middleware, por lo que solo usuarios
+     * autenticados llegarán aquí.
+     */
+    public function show(Product $product)
+    {
+        // Cargamos las relaciones que queramos mostrar en la vista de detalle
+        $product->load(['category', 'seller', 'tags', 'images']);
+
+        return Inertia::render('products/show', [
+            'product' => $product
+        ]);
+    }
+}

@@ -15,7 +15,7 @@ class CategoryController extends Controller
     public function index()
     {
         // Esto podría ser para una página que liste todas las categorías
-        return Inertia::render('Categories/Index', [
+        return Inertia::render('Categories/index', [
             'categories' => Category::all(),
         ]);
     }

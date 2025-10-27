@@ -5,38 +5,45 @@ use App\Http\Controllers\Admin\TagController as AdminTagController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Seller\ProductController as SellerProductController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Middleware\RoleMiddleware;
 use Inertia\Inertia;
 
 
 // --- RUTAS PÚBLICAS (Cualquiera puede verlas) ---
 Route::get('/', [ProductController::class, 'index'])->name('home');
-Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 
 
 // --- RUTAS QUE REQUIEREN AUTENTICACIÓN ---
-Route::middleware([
-    'auth', // 'auth:sanctum' y 'verified' suelen venir con Breeze/Jetstream, 'auth' es más general
-    'verified',
-])->group(function () {
+//solo los usuarios registrados pueden acceder
+///Route::middleware(['auth', 'verified'])->group(function () 
+Route::middleware(['auth'])->group(function () 
+{
+    //ruta de detalles de productos
+    Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 
+    //dashboard con logica de roles
     Route::get('/dashboard', function () {
-        // Redirigir al panel correspondiente según el rol del usuario
-        //si no funciona probar Auth::user()->isAdmin())
-        if (auth()->user()->isAdmin()) {
-            // Un admin podría tener su propio dashboard en el futuro
-            // Por ahora, lo mandamos a categorías
+        //guarda el nivel de autorizacion de los usuarios
+        //$user = Auth::user();
+        $user = auth()->user();
+
+        if($user->hasRole('administrador')){
             return redirect()->route('admin.categories.index');
         }
-        if (auth()->user()->isSeller()) {
+
+        if($user->hasRole('vendedor')){
             return redirect()->route('seller.products.index');
         }
-        // Si es comprador, se queda en un dashboard simple
-        return Inertia::render('Dashboard');
+
+    //si no es comprador va al inicio
+    return redirect()->route('home');
     })->name('dashboard');
 
 
     // --- RUTAS DE VENDEDOR (Protegidas) ---
-    Route::middleware('isSeller')
+    //Route::middleware('role:vendedor')
+    Route::middleware(RoleMiddleware::class . ':vendedor')
         ->prefix('seller') // URL base será /seller/...
         ->name('seller.') // Nombres de ruta serán seller....
         ->group(function () {
@@ -45,16 +52,19 @@ Route::middleware([
 
 
     // --- RUTAS DE ADMINISTRACIÓN (Protegidas) ---
-    Route::middleware('isAdmin')
+    //Route::middleware('role:administrador')
+    Route::middleware(RoleMiddleware::class . ':administrador')
         ->prefix('admin') // URL base será /admin/...
         ->name('admin.') // Nombres de ruta serán admin....
         ->group(function () {
             Route::resource('categories', AdminCategoryController::class);
             Route::resource('tags', AdminTagController::class);
         });
+
+    // --- OTRAS RUTAS PARA USUARIOS REGISTRADOS ---
 });
 
 
-// Rutas de autenticación de Breeze/Fortify
+// Rutas de autenticación de Breeze/Fortify, para registrarse o iniciar sesion
 require __DIR__.'/auth.php';
 require __DIR__.'/settings.php';

@@ -14,14 +14,14 @@ class TagController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Admin/Tags/Index', [
+        return Inertia::render('admin/tags/index', [
             'tags' => Tag::paginate(10)
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('Admin/Tags/Create');
+        return Inertia::render('admin/tags/create');
     }
 
     public function store(StoreTagRequest $request)
@@ -36,7 +36,7 @@ class TagController extends Controller
 
     public function edit(Tag $tag)
     {
-        return Inertia::render('Admin/Tags/Edit', [
+        return Inertia::render('admin/tags/edit', [
             'tag' => $tag
         ]);
     }
@@ -53,7 +53,8 @@ class TagController extends Controller
 
     public function destroy(Request $request, Tag $tag)
     {
-        if($request->user()->cannot('manage tags')){
+        //if($request->user()->cannot('manage tags')){
+        if(!$request->user()->hasRole('administrador')){
             abort(403, 'No tienes permisos para esta accion');
         }
 

@@ -12,7 +12,8 @@ class StoreCategoryRequest extends FormRequest
     public function authorize(): bool
     {
         //ver el archivo /database/seeders/RolesAndPermissionsSeeder.php
-        return $this->user()->can('manage categories'); //verdadero si le usuario puede gestionar las categorias
+        //return $this->user()->can('manage categories'); //verdadero si le usuario puede gestionar las categorias
+        return $this->user()->hasRole('administrador');
     }
 
     /**
