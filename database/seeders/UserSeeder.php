@@ -20,6 +20,13 @@ class UserSeeder extends Seeder
             'password' => Hash::make('admin123'),
         ])->assignRole('administrador');
 
+        //crear un seller
+        User::factory()->create([
+            'name' => 'Vendedor de Prueba',
+            'email' => 'selleruser@example.com',
+            'password' => Hash::make('seller123'), // Contraseña fácil de recordar
+        ])->assignRole('vendedor');
+
         //crear 5 vendedores
         User::factory(5)->create()->each(function ($user){
             $user->assignRole('vendedor');

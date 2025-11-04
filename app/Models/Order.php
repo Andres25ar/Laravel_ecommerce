@@ -10,7 +10,7 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'buyer_id',
+        'buyer_id', //id del comprador
         'total_amount',
         'discount',
         'payment_method',

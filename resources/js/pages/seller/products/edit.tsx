@@ -1,38 +1,69 @@
-import React from 'react';
-import { Head } from '@inertiajs/react';
-import { Category, Product, Tag, PageProps } from '@/types';
-import ProductForm from './partials/product-form';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'; // Layout para usuarios logueados
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import AppLayout from '@/layouts/app-layout';
+import SellerProductController from '@/actions/App/Http/Controllers/Seller/ProductController';
+import ProductForm from './partials/product-form'; // Reutiliza el mismo formulario
+import { PageProps as BasePageProps, Category, Tag, Product } from '@/types';
+import { Button } from '@/components/ui/button';
 
-interface EditPageProps extends PageProps {
+// Props que recibe esta página (producto, categorías, tags, IDs de tags actuales)
+interface EditProps extends BasePageProps {
     product: Product;
     categories: Category[];
     tags: Tag[];
+    currentTagIds: number[]; // IDs numéricos
 }
 
-export default function Edit({ auth, product, categories, tags }: EditPageProps) {
-    return (
-        <AuthenticatedLayout
-            user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Editando Producto: {product.name}</h2>}
-        >
-            <Head title={`Editar ${product.name}`} />
+export default function ProductEdit() {
+    const { product, categories, tags, currentTagIds } = usePage<EditProps>().props;
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900">
-                            {/* Pasamos todos los props necesarios al formulario */}
-                            <ProductForm
-                                product={product}
-                                categories={categories}
-                                tags={tags}
-                            />
-                        </div>
-                    </div>
+    // Estado inicial del formulario con datos del producto
+    const { data, setData, put, processing, errors } = useForm({
+        name: product.name,
+        description: product.description,
+        inclusions: product.inclusions || '', // Asegurar que sea string
+        price: String(product.price), // Convertir a string para el input
+        stock: String(product.stock), // Convertir a string para el input
+        category_id: String(product.category), // Convertir a string (agregar _id ssi falla ?)
+        tags: currentTagIds.map(String), // Convertir IDs numéricos a strings para Checkbox
+    });
+
+    // Función que se pasará al componente ProductForm
+    const submit = () => {
+        const submitData = {
+            ...data,
+            price: parseFloat(String(data.price)) || 0,
+            stock: parseInt(String(data.stock), 10) || 0,
+        };
+        // Usamos PUT para actualizar
+        put(SellerProductController.update.url(product.id));
+    };
+
+    return (
+        <AppLayout>
+            <Head title={`Editar Producto: ${product.name}`} />
+
+            <div className="container mx-auto px-4 py-8">
+                <div className="mb-6 flex items-center justify-between">
+                    <h1 className="text-2xl font-semibold">Editar Producto</h1>
+                    <Button variant="outline" asChild>
+                        <Link href={SellerProductController.index.url()}>
+                            Cancelar
+                        </Link>
+                    </Button>
                 </div>
+
+                {/* Renderiza el mismo componente de formulario */}
+                <ProductForm
+                    submit={submit}
+                    data={data}
+                    setData={setData}
+                    errors={errors}
+                    processing={processing}
+                    categories={categories}
+                    tags={tags}
+                    isEditMode={true} // Indicar que es modo edición
+                />
             </div>
-        </AuthenticatedLayout>
+        </AppLayout>
     );
 }
-

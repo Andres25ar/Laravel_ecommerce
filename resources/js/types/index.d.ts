@@ -57,6 +57,31 @@ export interface Tag {
     slug: string;
 }
 
+export interface OrderProduct {
+    id: number;
+    name: string;
+    price: number;
+    // 'pivot' contendrá la cantidad y el precio al momento de la compra
+    pivot: {
+        quantity: number;
+        price: number;
+    };
+}
+
+//Define la estructura de una Orden
+export interface Order {
+    id: number;
+    buyer_id: number;
+    total_amount: number;
+    discount: number | null;
+    payment_method: string;
+    status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
+    created_at: string; // Es un string de fecha (ISO 8601)
+    updated_at: string;
+    products: OrderProduct[]; // Array de productos en la orden
+    products_count: number; // Propiedad custom
+}
+
 // Define la estructura de un producto
 export interface Product {
     id: number;
@@ -89,7 +114,6 @@ export interface Paginator<T> {
         current_page: number;
         from: number | null;
         last_page: number;
-        // --> THIS is the array the component needs <--
         /*links: Array<{
             url: string | null;
             label: string;

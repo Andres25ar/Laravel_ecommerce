@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\TagController as AdminTagController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Seller\ProductController as SellerProductController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Middleware\RoleMiddleware;
@@ -37,8 +38,15 @@ Route::middleware(['auth'])->group(function ()
         }
 
     //si no es comprador va al inicio
-    return redirect()->route('home');
+    //return redirect()->route('home');
+    return redirect()->route('orders.index');
+
     })->name('dashboard');
+
+    // --- RUTAS DE LOS COMPRADORES --- 
+    Route::get('/my-orders', [OrderController :: class, 'index'])
+        ->middleware('verified')    //verifica que este autenticado
+        ->name('orders.index');
 
 
     // --- RUTAS DE VENDEDOR (Protegidas) ---

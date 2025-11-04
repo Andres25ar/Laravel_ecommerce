@@ -1,192 +1,195 @@
-import React from 'react';
 import { useForm } from '@inertiajs/react';
-import { Category, Product, Tag } from '@/types';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea'; // Importa Textarea
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Importa Select
+import { Checkbox } from '@/components/ui/checkbox'; // Importa Checkbox
+import InputError from '@/components/input-error';
+import { Category, Tag } from '@/types'; // Importa tipos
+import React, { useEffect } from 'react';
 
-// --- Componentes de UI reutilizables para el formulario ---
-
-const InputLabel = ({ htmlFor, value }: { htmlFor: string, value: string }) => (
-    <label htmlFor={htmlFor} className="block font-medium text-sm text-gray-700">{value}</label>
-);
-
-const TextInput = ({ id, type = 'text', value, onChange, className = '' }: { id: string, type?: string, value: string | number, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, className?: string }) => (
-    <input
-        id={id}
-        type={type}
-        value={value}
-        onChange={onChange}
-        className={`border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full ${className}`}
-    />
-);
-
-const TextArea = ({ id, value, onChange }: { id: string, value: string, onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void }) => (
-    <textarea
-        id={id}
-        value={value}
-        onChange={onChange}
-        className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full"
-        rows={4}
-    />
-);
-
-const SelectInput = ({ id, value, onChange, children }: { id: string, value: string | number, onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void, children: React.ReactNode }) => (
-    <select
-        id={id}
-        value={value}
-        onChange={onChange}
-        className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full"
-    >
-        {children}
-    </select>
-);
-
-const MultiSelectInput = ({ id, value, onChange, children }: { id: string, value: (string | number)[], onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void, children: React.ReactNode }) => (
-    <select
-        id={id}
-        multiple
-        value={value.map(String)} // El valor del select multiple debe ser un array de strings
-        onChange={onChange}
-        className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full h-32"
-    >
-        {children}
-    </select>
-);
-
-
-const InputError = ({ message }: { message?: string }) => (
-    message ? <p className="text-sm text-red-600 mt-2">{message}</p> : null
-);
-
-// --- Props del Formulario Principal ---
+// Tipos para las props del formulario
+type ProductFormData = {
+    name: string;
+    description: string;
+    inclusions: string;
+    price: number | string; // Permitir string para el input, convertir luego
+    stock: number | string; // Permitir string para el input, convertir luego
+    category_id: string; // ID de categoría como string para el Select
+    tags: string[]; // Array de IDs de tags como strings para Checkboxes
+};
 
 interface ProductFormProps {
-    product?: Product;
-    categories: Category[];
-    tags: Tag[];
+    submit: (data: ProductFormData) => void; // Función para enviar
+    data: ProductFormData; // Datos del formulario
+    setData: <K extends keyof ProductFormData>(key: K, value: ProductFormData[K]) => void; // Función para actualizar datos
+    errors: Partial<Record<keyof ProductFormData, string>>; // Errores
+    processing: boolean; // Estado de envío
+    categories: Category[]; // Lista de categorías disponibles
+    tags: Tag[]; // Lista de tags disponibles
+    isEditMode?: boolean; // Para cambiar texto del botón
 }
 
-export default function ProductForm({ product, categories, tags }: ProductFormProps) {
-    const { data, setData, post, put, processing, errors } = useForm({
-        name: product?.name || '',
-        description: product?.description || '',
-        inclusions: product?.inclusions || '',
-        price: product?.price || 0,
-        stock: product?.stock || 0,
-        category_id: product?.category.id.toString() || '', // Aseguramos que sea string
-        tags: product?.tags.map(t => t.id) || [],
-    });
+export default function ProductForm({
+    submit,
+    data,
+    setData,
+    errors,
+    processing,
+    categories,
+    tags,
+    isEditMode = false,
+}: ProductFormProps) {
 
-    const handleMultiSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedIds = Array.from(e.target.selectedOptions, option => parseInt(option.value, 10));
-        setData('tags', selectedIds);
+    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        submit(data); // Llama a la función submit pasada como prop
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (product) {
-            put(route('seller.products.update', product.id), {
-                preserveScroll: true,
-            });
-        } else {
-            post(route('seller.products.store'), {
-                preserveScroll: true,
-            });
-        }
+    // Manejador para los checkboxes de tags
+    const handleTagChange = (tagId: string) => {
+        const currentTags = data.tags || [];
+        const newTags = currentTags.includes(tagId)
+            ? currentTags.filter((id) => id !== tagId) // Quitar si ya está
+            : [...currentTags, tagId]; // Añadir si no está
+        setData('tags', newTags);
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-                <InputLabel htmlFor="name" value="Nombre del Producto" />
-                <TextInput
-                    id="name"
-                    value={data.name}
-                    onChange={(e) => setData('name', e.target.value)}
-                />
-                <InputError message={errors.name} />
-            </div>
+        <Card className="max-w-3xl mx-auto"> {/* Hacemos la tarjeta un poco más ancha */}
+            <CardHeader>
+                <CardTitle>{isEditMode ? 'Editar Producto' : 'Crear Nuevo Producto'}</CardTitle>
+                <CardDescription>
+                    {isEditMode ? 'Actualiza los detalles de tu producto.' : 'Completa la información para publicar tu producto.'}
+                </CardDescription>
+            </CardHeader>
+            <form onSubmit={handleFormSubmit}>
+                <CardContent className="space-y-6">
+                    {/* Name */}
+                    <div className="space-y-2">
+                        <Label htmlFor="name">Nombre del Producto</Label>
+                        <Input
+                            id="name"
+                            value={data.name}
+                            onChange={(e) => setData('name', e.target.value)}
+                            className={errors.name ? 'border-destructive' : ''}
+                            required
+                        />
+                        <InputError message={errors.name} />
+                    </div>
 
-            <div>
-                <InputLabel htmlFor="description" value="Descripción" />
-                <TextArea
-                    id="description"
-                    value={data.description}
-                    onChange={(e) => setData('description', e.target.value)}
-                />
-                <InputError message={errors.description} />
-            </div>
+                    {/* Description */}
+                    <div className="space-y-2">
+                        <Label htmlFor="description">Descripción</Label>
+                        <Textarea
+                            id="description"
+                            value={data.description}
+                            onChange={(e) => setData('description', e.target.value)}
+                            className={`min-h-[100px] ${errors.description ? 'border-destructive' : ''}`}
+                            required
+                        />
+                        <InputError message={errors.description} />
+                    </div>
 
-            <div>
-                <InputLabel htmlFor="inclusions" value="Inclusiones (qué incluye el producto)" />
-                <TextInput
-                    id="inclusions"
-                    value={data.inclusions}
-                    onChange={(e) => setData('inclusions', e.target.value)}
-                />
-                <InputError message={errors.inclusions} />
-            </div>
+                    {/* Inclusions */}
+                    <div className="space-y-2">
+                        <Label htmlFor="inclusions">Inclusiones (Opcional)</Label>
+                        <Input
+                            id="inclusions"
+                            value={data.inclusions}
+                            onChange={(e) => setData('inclusions', e.target.value)}
+                            className={errors.inclusions ? 'border-destructive' : ''}
+                        />
+                        <p className="text-sm text-muted-foreground">Ej: Incluye cargador, manual, etc.</p>
+                        <InputError message={errors.inclusions} />
+                    </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <InputLabel htmlFor="price" value="Precio" />
-                    <TextInput
-                        id="price"
-                        type="number"
-                        value={data.price}
-                        onChange={(e) => setData('price', parseFloat(e.target.value) || 0)}
-                    />
-                    <InputError message={errors.price} />
-                </div>
-                <div>
-                    <InputLabel htmlFor="stock" value="Stock" />
-                    <TextInput
-                        id="stock"
-                        type="number"
-                        value={data.stock}
-                        onChange={(e) => setData('stock', parseInt(e.target.value, 10) || 0)}
-                    />
-                    <InputError message={errors.stock} />
-                </div>
-            </div>
+                    {/* Price & Stock (en una fila) */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="price">Precio (ARS)</Label>
+                            <Input
+                                id="price"
+                                type="number"
+                                step="0.01" // Para permitir decimales
+                                min="0"
+                                value={data.price}
+                                onChange={(e) => setData('price', e.target.value)} // Guardar como string temporalmente
+                                className={errors.price ? 'border-destructive' : ''}
+                                required
+                            />
+                            <InputError message={errors.price} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="stock">Stock Disponible</Label>
+                            <Input
+                                id="stock"
+                                type="number"
+                                min="0"
+                                value={data.stock}
+                                onChange={(e) => setData('stock', e.target.value)} // Guardar como string temporalmente
+                                className={errors.stock ? 'border-destructive' : ''}
+                                required
+                            />
+                            <InputError message={errors.stock} />
+                        </div>
+                    </div>
 
-            <div>
-                <InputLabel htmlFor="category_id" value="Categoría" />
-                <SelectInput
-                    id="category_id"
-                    value={data.category_id}
-                    onChange={e => setData('category_id', e.target.value)}
-                >
-                    <option value="">Selecciona una categoría</option>
-                    {categories.map(cat => (
-                        <option key={cat.id} value={cat.id.toString()}>{cat.name}</option>
-                    ))}
-                </SelectInput>
-                <InputError message={errors.category_id} />
-            </div>
+                    {/* Category */}
+                    <div className="space-y-2">
+                        <Label htmlFor="category_id">Categoría</Label>
+                        <Select
+                            value={data.category_id}
+                            onValueChange={(value) => setData('category_id', value)}
+                            required
+                        >
+                            <SelectTrigger className={errors.category_id ? 'border-destructive' : ''}>
+                                <SelectValue placeholder="Selecciona una categoría" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {categories.map((category) => (
+                                    <SelectItem key={category.id} value={String(category.id)}>
+                                        {category.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <InputError message={errors.category_id} />
+                    </div>
 
-            <div>
-                <InputLabel htmlFor="tags" value="Etiquetas (mantén presionado Ctrl o Cmd para seleccionar varias)" />
-                <MultiSelectInput
-                    id="tags"
-                    value={data.tags}
-                    onChange={handleMultiSelectChange}
-                >
-                    {tags.map(tag => (
-                        <option key={tag.id} value={tag.id}>{tag.name}</option>
-                    ))}
-                </MultiSelectInput>
-                <InputError message={errors.tags} />
-            </div>
+                    {/* Tags */}
+                    <div className="space-y-2">
+                        <Label>Tags (Opcional)</Label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 rounded-md border p-4 max-h-40 overflow-y-auto">
+                            {tags.map((tag) => (
+                                <div key={tag.id} className="flex items-center space-x-2">
+                                    <Checkbox
+                                        id={`tag-${tag.id}`}
+                                        checked={data.tags?.includes(String(tag.id))}
+                                        onCheckedChange={() => handleTagChange(String(tag.id))}
+                                    />
+                                    <Label htmlFor={`tag-${tag.id}`} className="font-normal cursor-pointer">
+                                        {tag.name}
+                                    </Label>
+                                </div>
+                            ))}
+                        </div>
+                        <InputError message={errors.tags} /> {/* Error general para el array */}
+                        {/* Puedes añadir errores individuales si la validación los devuelve así */}
+                        {/* <InputError message={errors['tags.*']} /> */}
+                    </div>
 
-            <div className="flex items-center justify-end">
-                <button
-                    type="submit"
-                    className="px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150"
-                    disabled={processing}
-                >
-                    {product ? 'Actualizar Producto' : 'Guardar Producto'}
-                </button>
-            </div>
-        </form>
+                    {/* Aquí podrías añadir campos para subir imágenes */}
+
+                </CardContent>
+                <CardFooter className="flex justify-end">
+                    <Button type="submit" disabled={processing}>
+                        {processing ? (isEditMode ? 'Actualizando...' : 'Guardando...') : (isEditMode ? 'Actualizar Producto' : 'Guardar Producto')}
+                    </Button>
+                </CardFooter>
+            </form>
+        </Card>
     );
 }
-

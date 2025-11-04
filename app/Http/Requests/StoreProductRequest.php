@@ -12,7 +12,8 @@ class StoreProductRequest extends FormRequest
     public function authorize(): bool
     {
         //permisos asignados a los vendedores en el archivo /database/seeders/RolesAndPermissionsSeeders.php
-        return $this->user()->can('create products');   //retorna true si el usuario tiene los permisos para crear productos
+        //return $this->user()->can('create products');   //retorna true si el usuario tiene los permisos para crear productos
+        return $this->user()->hasRole('vendedor');
     }
 
     /**

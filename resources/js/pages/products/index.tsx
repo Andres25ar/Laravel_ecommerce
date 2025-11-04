@@ -1,5 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
+//import AppLayout from '@/layouts/app-layout';
+import PublicLayout from '@/layouts/public-layout';
 import ProductCard from '@/components/product-card';
 import { Paginator, Product as ProductType, PageProps as BasePageProps } from '@/types';
 import ProductController from '@/actions/App/Http/Controllers/ProductController';
@@ -10,42 +11,6 @@ interface IndexPageProps extends BasePageProps {
     products: Paginator<ProductType & { imageUrl?: string | null; rating?: number }>;
 }
 
-
-/*
-const Pagination = ({ links }: { links: Paginator<any>['meta']['links'] }) => {
-    // 1. Filtrar solo los links que tienen URL y label válidos
-    const validLinks = links?.filter(link => link && link.url !== null && typeof link.label === 'string') || [];
-
-    // 2. Filtrar para obtener "Previous", "Next" y los números
-    const relevantLinks = validLinks.filter(
-        (link) => !isNaN(parseInt(link.label)) || link.label.includes('&laquo;') || link.label.includes('&raquo;')
-    );
-
-    // No mostrar si no hay suficientes links útiles
-    if (relevantLinks.length <= 3) return null;
-
-    return (
-        <div className="mt-8 flex justify-center space-x-1">
-            {relevantLinks.map((link, index) => (
-                <Link
-                    key={index}
-                    // Ahora estamos seguros de que link.url no es null
-                    href={link.url!}
-                    preserveScroll
-                    preserveState
-                    className={cn(
-                        'px-3 py-1.5 text-sm rounded-md border',
-                        link.active ? 'bg-primary text-primary-foreground border-primary z-10' : 'bg-card text-card-foreground hover:bg-accent border-border'
-                        // Ya no necesitamos la clase para 'disabled' porque filtramos los null
-                    )}
-                    dangerouslySetInnerHTML={{ __html: link.label }} // link.label siempre será string aquí
-                />
-            ))}
-        </div>
-    );
-};
-*/
-
 export default function ProductsIndex() {
     const { products } = usePage<IndexPageProps>().props;
 
@@ -53,7 +18,7 @@ export default function ProductsIndex() {
     // console.log('Datos de paginación recibidos:', products);
 
     return (
-        <AppLayout>
+        <PublicLayout>
             <Head title="Catálogo de Productos" />
 
             <div className="container mx-auto px-4 py-8">
@@ -87,6 +52,6 @@ export default function ProductsIndex() {
                     <Pagination links={products.links} />
                 )}
             </div>
-        </AppLayout>
+        </PublicLayout>
     );
 }

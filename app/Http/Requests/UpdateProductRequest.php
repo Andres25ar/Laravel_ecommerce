@@ -14,7 +14,8 @@ class UpdateProductRequest extends FormRequest
         //permisos asignados a los vendedores en el archivo /database/seeders/RolesAndPermissionsSeeders.php
         //retorna true si el usuario tiene los permisos para crear productos
         //ademas se asegura que solo el vendedor de ese producto pueda editarlos
-        return $this->user()->can('edit products') && $this->user()->id === $this->product->seller_id;
+        //return $this->user()->can('edit products') && $this->user()->id === $this->product->seller_id;
+        return $this->user()->hasRole('vendedor') && $this->user()->id === $this->product->seller_id;
     }
 
     /**
