@@ -5,6 +5,8 @@ namespace App\Http\Middleware;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use App\Models\Cart;
+use Illuminate\Support\Facades\Auth;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -46,6 +48,9 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user() ? $request->user()->load('roles:name') : null,
                 //'user' => $request->user(),
             ],
+            'cartCount' => fn () => $request->user()
+                ? Cart::where('user_id', $request->user()->id)->sum('quantity')
+                : 0,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

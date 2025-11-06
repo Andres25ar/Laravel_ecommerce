@@ -1,5 +1,5 @@
 import MainNavbar from '@/components/main-navbar'; // Importa la navbar que acabamos de crear
-import { Toaster } from '@/components/ui/sonner'; // Para notificaciones (opcional pero útil)
+import { Toaster } from '@/components/ui/toaster'; // Para notificaciones (opcional pero útil)
 import React from 'react';
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {

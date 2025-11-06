@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\TagController as AdminTagController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Seller\ProductController as SellerProductController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Middleware\RoleMiddleware;
@@ -48,12 +49,17 @@ Route::middleware(['auth'])->group(function ()
         ->middleware('verified')    //verifica que este autenticado
         ->name('orders.index');
 
+    // --- RUTAS DEL CARRITO DE COMPRAS ---
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/{product}', [CartController::class, 'add'])->name('cart.add');
+    Route::put('/cart/{cart}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{cart}', [CartController::class, 'destroy'])->name('cart.destroy');
 
     // --- RUTAS DE VENDEDOR (Protegidas) ---
     //Route::middleware('role:vendedor')
     Route::middleware(RoleMiddleware::class . ':vendedor')
-        ->prefix('seller') // URL base será /seller/...
-        ->name('seller.') // Nombres de ruta serán seller....
+        ->prefix('seller') //URL base será /seller/...
+        ->name('seller.') //nombres de ruta serán seller....
         ->group(function () {
             Route::resource('products', SellerProductController::class);
         });
@@ -68,8 +74,6 @@ Route::middleware(['auth'])->group(function ()
             Route::resource('categories', AdminCategoryController::class);
             Route::resource('tags', AdminTagController::class);
         });
-
-    // --- OTRAS RUTAS PARA USUARIOS REGISTRADOS ---
 });
 
 

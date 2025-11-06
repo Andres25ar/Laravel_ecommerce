@@ -28,6 +28,7 @@ export interface SharedData {
     auth: Auth;
     sidebarOpen: boolean;
     [key: string]: unknown;
+    cartCount: number;
 }
 
 export interface User {
@@ -95,6 +96,15 @@ export interface Product {
     tags: Tag[];
 }
 
+export interface CartItem {
+    id: number;
+    user_id: number;
+    product_id: number;
+    quantity: number;
+    product: Product; // El producto cargado
+    product_image_url: string | null; // URL que añadimos en el controlador
+}
+
 // Define la estructura del objeto de paginación de Laravel
 // Define la estructura del objeto de paginación de Laravel
 export interface Paginator<T> {
@@ -126,10 +136,11 @@ export interface Paginator<T> {
     };
 }
 
-export interface PageProps { // O el nombre que le hayas dado a tu interfaz base
+export interface PageProps {
     auth: {
         user: User | null;
     };
+    cartCount?: number;
     flash?: { // Añadido para el mensaje flash
         success?: string;
         error?: string; // Opcional: para mensajes de error

@@ -1,14 +1,16 @@
 import { Link, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; // Para menú móvil
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { CircleUserRound, Menu, Search, ShoppingCart, Store } from 'lucide-react';
-import { type SharedData } from '@/types'; // Importa tus tipos
-import ProductController from '@/actions/App/Http/Controllers/ProductController'; // Ruta de inicio
-import { login, register } from '@/routes'; // Rutas de auth
-import { useIsMobile } from '@/hooks/use-mobile'; // Hook para móvil
+import { type SharedData } from '@/types';
+import ProductController from '@/actions/App/Http/Controllers/ProductController';
+import { login, register } from '@/routes';
+import { useIsMobile } from '@/hooks/use-mobile';
+
 import AuthenticatedSessionController from '@/actions/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
+import CartController from '@/actions/App/Http/Controllers/CartController';
 
 // Componente de Logo/Título
 const AppTitle = () => (
@@ -45,40 +47,51 @@ const GuestButtons = () => (
 );
 
 // Iconos para Usuarios (Logueados)
-const UserIcons = () => (
-    <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon">
-            <ShoppingCart className="h-5 w-5" />
-            <span className="sr-only">Carrito</span>
-            {/* Opcional: Badge de contador */}
-            {/* <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2">3</span> */}
-        </Button>
+const UserIcons = () => {
+    // Obtiene el cartCount
+    const { cartCount } = usePage<SharedData>().props;
 
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
-                    <CircleUserRound className="h-6 w-6" />
-                    <span className="sr-only">Perfil</span>
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                    {/* Asumo que la ruta de perfil está en settings.php */}
-                    <Link href={'/settings/profile'}>Mi Perfil</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                    <Link href={'/dashboard'}>Dashboard</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                    <Link href={AuthenticatedSessionController.destroy.url()} method="post" as="button">
-                        Cerrar Sesión
-                    </Link>
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    </div>
-);
+    return (
+        <div className="flex items-center gap-4">
+            {/* Botón de Carrito con contador */}
+            <Button variant="ghost" size="icon" className="relative" asChild>
+                <Link href={CartController.index.url()}>
+                    <ShoppingCart className="h-5 w-5" />
+                    <span className="sr-only">Carrito</span>
+                    {cartCount > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                            {cartCount}
+                        </span>
+                    )}
+                </Link>
+            </Button>
+
+            {/* Dropdown de Perfil */}
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                        <CircleUserRound className="h-6 w-6" />
+                        <span className="sr-only">Perfil</span>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                        <Link href={'/settings/profile'}>Mi Perfil</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                        <Link href={'/dashboard'}>Dashboard</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                        <Link href={AuthenticatedSessionController.destroy.url()} method="post" as="button">
+                            Cerrar Sesión
+                        </Link>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
+    );
+};
 
 // Menú Móvil (para pantallas pequeñas)
 const MobileMenu = ({ user }: { user: SharedData['auth']['user'] }) => (
@@ -108,21 +121,21 @@ const MobileMenu = ({ user }: { user: SharedData['auth']['user'] }) => (
 // --- Componente Principal de la Navbar ---
 export default function MainNavbar() {
     const { auth } = usePage<SharedData>().props;
-    const isMobile = useIsMobile(); // Hook que ya tienes
+    const isMobile = useIsMobile();
 
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container h-16 flex items-center justify-between gap-4">
                 {/* Lado Izquierdo: Título o Menú Móvil */}
                 {isMobile ? <MobileMenu user={auth.user} /> : <AppTitle />}
-
+                
                 {/* Centro: Búsqueda (oculto en móvil) */}
                 {!isMobile && (
                     <div className="flex-1 flex justify-center">
                         <SearchBar />
                     </div>
                 )}
-
+                
                 {/* Derecha: Botones (oculto en móvil) */}
                 {!isMobile && (
                     <div className="flex-shrink-0">
