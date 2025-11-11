@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\TagController as AdminTagController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Seller\ProductController as SellerProductController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
@@ -73,6 +74,10 @@ Route::middleware(['auth'])->group(function ()
         ->group(function () {
             Route::resource('categories', AdminCategoryController::class);
             Route::resource('tags', AdminTagController::class);
+            Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
+            Route::put('users/{user}/role',[AdminUserController::class, 'updateRole'])->name('users.updateRole');
+            Route::post('users/{user}/suspend',[AdminUserController::class, 'suspend']) ->name('users.suspend');
+            Route::post('users/{user}/restore',[AdminUserController::class, 'restore']) ->name('users.restore');
         });
 });
 

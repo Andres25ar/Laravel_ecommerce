@@ -41,6 +41,7 @@ export interface User {
     created_at: string;
     updated_at: string;
     roles?: Array<{ name: string }>;
+    banned_at?: string | null;
     [key: string]: unknown; // This allows for additional properties...
 }
 

@@ -13,7 +13,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                 {children}
             </main>
 
-            {/* <Footer /> */}
+            {/* <Footer /> cuando lo tenga o lo haga xd */}
 
             <Toaster richColors />
         </div>

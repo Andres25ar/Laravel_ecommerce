@@ -10,13 +10,13 @@ import { usePage } from '@inertiajs/react';
 import {
     LayoutGrid,
     Settings,
-    Github,
     LifeBuoy,
     LogOut,
     Plus,
     // --- Iconos para Admin ---
     FolderKanban, // Icono para Categorías
     TagsIcon,     // Icono para Tags
+    Users,
     // --- Iconos de vendedor ---
     Package,
     Store,
@@ -24,12 +24,13 @@ import {
     ShoppingBag,
 } from 'lucide-react';
 
-//rutas
+//rutas de los controladores
 import AdminCategoryController from '@/actions/App/Http/Controllers/Admin/CategoryController';
 import AdminTagController from '@/actions/App/Http/Controllers/Admin/TagController';
 import SellerProductController from '@/actions/App/Http/Controllers/Seller/ProductController';
 import ProductController from '@/actions/App/Http/Controllers/ProductController';
 import OrderController from '@/actions/App/Http/Controllers/OrderController';
+import AdminUserController from '@/actions/App/Http/Controllers/Admin/UserController';
 
 export function AppSidebar() {
     const mobileNavigation = useMobileNavigation();
@@ -51,7 +52,8 @@ export function AppSidebar() {
             { title: 'Ver Tienda', href: ProductController.index.url(), icon: Store },
             { title: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
             { title: 'Categorías', href: AdminCategoryController.index.url(), icon: FolderKanban },
-            { title: 'Tags', href: AdminTagController.index.url(), icon: TagsIcon }
+            { title: 'Tags', href: AdminTagController.index.url(), icon: TagsIcon },
+            { title: 'Usuarios', href: AdminUserController.index.url(), icon: Users}
         ];
     }
     //logica del vendedor seller
