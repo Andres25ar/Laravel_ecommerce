@@ -5,8 +5,10 @@ use App\Http\Controllers\Admin\TagController as AdminTagController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Seller\ProductController as SellerProductController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Seller\OrderController as SellerOrderController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Middleware\RoleMiddleware;
@@ -56,6 +58,14 @@ Route::middleware(['auth'])->group(function ()
     Route::put('/cart/{cart}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/{cart}', [CartController::class, 'destroy'])->name('cart.destroy');
 
+    // --- RUTAS PARA REALIZAR LOS PAGOS ---
+    Route::get('/checkout', [CheckoutController::class, 'index'])
+        ->middleware('verified')
+        ->name('checkout.index');
+    Route::post('/checkout', [CheckoutController::class, 'store'])
+        ->middleware('verified')
+        ->name('checkout.store');
+
     // --- RUTAS DE VENDEDOR (Protegidas) ---
     //Route::middleware('role:vendedor')
     Route::middleware(RoleMiddleware::class . ':vendedor')
@@ -63,6 +73,8 @@ Route::middleware(['auth'])->group(function ()
         ->name('seller.') //nombres de ruta serán seller....
         ->group(function () {
             Route::resource('products', SellerProductController::class);
+            Route::get('orders', [SellerOrderController::class, 'index'])->name('orders.index');
+            Route::put('orders/{order}', [SellerOrderController::class, 'update'])->name('orders.update');
         });
 
 

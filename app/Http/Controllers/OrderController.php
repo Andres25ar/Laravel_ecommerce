@@ -17,7 +17,7 @@ class OrderController extends Controller
                         ->paginate(10);
         
         $orders->getCollection()->transform(function($order){
-            $order->products_count = $order->product->count();
+            $order->products_count = $order->products->count();
             return $order;
         });
 

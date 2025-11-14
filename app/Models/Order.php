@@ -15,7 +15,23 @@ class Order extends Model
         'discount',
         'payment_method',
         'status',
+        //datos envio
+        'shipping_address_line_1',
+        'shipping_city',
+        'shipping_state',
+        'shipping_postal_code',
+        //datos de despacho
+        'shipping_type',
+        'shipping_tracking_code',
+        'estimated_delivery_date',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'estimated_delivery_date' => 'date',
+        ];
+    }
 
     // Relación uno a muchos (inversa): Una orden pertenece a un comprador (Usuario).
     public function buyer()

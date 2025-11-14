@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Minus, Plus, Trash2, ArrowLeft } from 'lucide-react';
 import CartController from '@/actions/App/Http/Controllers/CartController';
 import ProductController from '@/actions/App/Http/Controllers/ProductController';
+import CheckoutController from '@/actions/App/Http/Controllers/CheckoutController';
 import { useForm } from '@inertiajs/react';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
@@ -194,8 +195,10 @@ export default function CartIndex() {
                             </div>
                         </CardContent>
                         <CardContent>
-                            <Button className="w-full" size="lg" disabled={cartItems.length === 0}>
-                                Proceder al Pago (Checkout)
+                            <Button className="w-full" size="lg" disabled={cartItems.length === 0} asChild>
+                                <Link href={CheckoutController.index.url()}>
+                                    Proceder al Pago
+                                </Link>
                             </Button>
                         </CardContent>
                     </Card>

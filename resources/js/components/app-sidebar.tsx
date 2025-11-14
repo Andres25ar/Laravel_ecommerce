@@ -10,6 +10,7 @@ import { usePage } from '@inertiajs/react';
 import {
     LayoutGrid,
     Settings,
+    Github,
     LifeBuoy,
     LogOut,
     Plus,
@@ -20,7 +21,8 @@ import {
     // --- Iconos de vendedor ---
     Package,
     Store,
-    Car,
+    Car, // Este icono no se está usando, pero lo dejamos
+    ClipboardList, // Icono para Órdenes
     ShoppingBag,
 } from 'lucide-react';
 
@@ -31,6 +33,8 @@ import SellerProductController from '@/actions/App/Http/Controllers/Seller/Produ
 import ProductController from '@/actions/App/Http/Controllers/ProductController';
 import OrderController from '@/actions/App/Http/Controllers/OrderController';
 import AdminUserController from '@/actions/App/Http/Controllers/Admin/UserController';
+// --- 1. IMPORTA EL CONTROLADOR QUE FALTA ---
+import SellerOrderController from '@/actions/App/Http/Controllers/Seller/OrderController';
 
 export function AppSidebar() {
     const mobileNavigation = useMobileNavigation();
@@ -39,29 +43,30 @@ export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
     const user = auth.user;
 
-    // Verificamos roles
     const isAdmin = user?.roles?.some(role => role.name === 'administrador') ?? false;
     const isSeller = user?.roles?.some(role => role.name === 'vendedor') ?? false;
     const isBuyer = !isAdmin && !isSeller;
 
     let navItems: NavItem[] = [];
 
-    //logica del admin
+    // Enlaces de Administrador
     if (isAdmin) {
         navItems = [
             { title: 'Ver Tienda', href: ProductController.index.url(), icon: Store },
             { title: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
             { title: 'Categorías', href: AdminCategoryController.index.url(), icon: FolderKanban },
             { title: 'Tags', href: AdminTagController.index.url(), icon: TagsIcon },
-            { title: 'Usuarios', href: AdminUserController.index.url(), icon: Users}
+            { title: 'Usuarios', href: AdminUserController.index.url(), icon: Users },
         ];
     }
-    //logica del vendedor seller
+    // Enlaces de Vendedor
     else if (isSeller) {
         navItems = [
             { title: 'Ver Tienda', href: ProductController.index.url(), icon: Store },
             { title: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
-            { title: 'Mis Productos', href: SellerProductController.index.url(), icon: Package }
+            { title: 'Mis Productos', href: SellerProductController.index.url(), icon: Package },
+            // --- 2. AÑADE EL ENLACE QUE FALTA AQUÍ ---
+            { title: 'Pedidos', href: SellerOrderController.index.url(), icon: ClipboardList },
         ];
     }
     // Lógica para el Comprador (isBuyer)
@@ -78,9 +83,8 @@ export function AppSidebar() {
         href: '/settings/profile',
         icon: Settings,
     });
+    // --- FIN DE LA LÓGICA ---
 
-    // ... (resto de navItems, footerItems, etc. si los tienes) ...
-    // Por ejemplo, los footerItems que ya tenías:
     const footerItems: NavItem[] = [
         /*{
             title: 'GitHub',
@@ -96,16 +100,16 @@ export function AppSidebar() {
 
     return (
         <Sidebar
-        //mobileNavigation={mobileNavigation.state}
-        //onMobileNavigationChange={mobileNavigation.onStateChange}
+            mobileNavigation={mobileNavigation.state}
+            onMobileNavigationChange={mobileNavigation.onStateChange}
         >
             <SidebarContent
                 className="flex flex-col"
-            //onSelect={() => mobileNavigation.onStateChange('closed')}
+                onSelect={() => mobileNavigation.onStateChange('closed')}
             >
                 <AppSidebarHeader />
 
-                <div className="flex-1 overflow-y-auto"> {/* Añadimos overflow-y-auto */}
+                <div className="flex-1 overflow-y-auto">
                     <NavMain items={navItems} />
                 </div>
 
